@@ -189,3 +189,43 @@ correlation_matrix
 ***Comentários sobre a Matriz de Correlação:***
 
 -   Podemos observar que a idade (Age) tem uma correlação positiva fraca com o número de horas trabalhadas por semana (HoursPerWeek), enquanto a correlação com o peso final (FinalWeight) é negativa, mas muito fraca.
+
+```{r}
+# Tabela de contingência de sexo por renda
+tabela_sexo_renda <- table(dados_adult$Sex, dados_adult$Income)
+
+# Teste de proporção para comparar a proporção de homens e mulheres com renda alta
+resultado_teste_proporcao <- prop.test(tabela_sexo_renda[2, 2], sum(tabela_sexo_renda[2, ]))
+resultado_teste_proporcao
+```
+
+***Comentários sobre o Teste de proporção de homens e mulheres com renda alta:***
+
+-   Como o valor-p é extremamente pequeno, há evidências significativas para rejeitar a hipótese nula de que a proporção de homens com renda alta é igual à proporção de mulheres com renda alta. Portanto, podemos concluir que há uma diferença estatisticamente significativa na proporção de homens e mulheres com renda alta neste conjunto de dados. A proporção estimada de homens com renda alta é de aproximadamente 32.67%, com um intervalo de confiança de 95% entre aproximadamente 32.12% e 33.27%.
+
+```{r}
+tabela_raca_renda <- table(dados_adult$Race, dados_adult$Income)
+
+resultado_teste_qui_quadrado <- chisq.test(tabela_raca_renda)
+resultado_teste_qui_quadrado
+```
+
+***Comentários sobre o Teste de Qui-quadrado:***
+
+-   Como o valor-p é extremamente baixo, podemos concluir que há uma associação significativa entre raça e renda no conjunto de dados "Adult". Ou seja, a raça está associada à renda de maneira estatisticamente significativa.
+
+```{r}
+options(repos = "https://cran.rstudio.com/")
+install.packages("vcd")
+library(vcd)
+
+# Calcular Cramér's V para a relação entre educação e estado civil
+cramers_v <- assocstats(table(dados_adult$Education, dados_adult$MaritalStatus))
+cramers_v$chisq
+cramers_v$v
+```
+
+***Comentários sobre o Cramér's V:***
+
+-   Quanto mais próximo de 1, mais forte é a associação entre as variáveis. Neste caso, Cramér's V é de aproximadamente 0.322, indicando uma associação moderada entre raça e renda.
+-   O valor de Cramér's V indica uma associação moderada entre raça e renda no conjunto de dados "Adult". Isso significa que a raça está moderadamente associada à renda, e essa associação não é devida ao acaso.

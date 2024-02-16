@@ -1,0 +1,191 @@
+---
+title: "Análise Demográfica do público Adulto - UCI Machine Learning Repository"
+output:
+  pdf_document: default
+date: "15-02-2024"
+author: Daniel Fernandes Pinho
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+
+# Carregar o conjunto de dados Adult
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+colunas <- c("Age", "Workclass", "FinalWeight", "Education", "EducationNum", 
+             "MaritalStatus", "Occupation", "Relationship", "Race", "Sex", 
+             "CapitalGain", "CapitalLoss", "HoursPerWeek", "NativeCountry", "Income")
+
+dados_adult <- read.csv(url, header = FALSE, col.names = colunas)
+
+# Visualizar as primeiras linhas do conjunto de dados
+head(dados_adult)
+```
+
+**Comentários sobre as colunas:**
+
+-   **Age(Idade)**: representa a idade das pessoas e podem ser usadas para análises demográficas e comportamentais.
+
+-   **Workclass (classe de trabalho)**: Esta coluna indica a classe de trabalho da pessoa, como "Private" (Privado), "Self-emp-not-inc" (Por conta própria - não incorporado), "Local-gov" (Governo local), entre outros. Isso pode ser útil para entender a distribuição ocupacional e econômica dos indivíduos no conjunto de dados;
+
+-   **FinalWeight (Peso Final):** Atributo numérico que representa o peso da pessoa; • Education (Educação): Indica o nível de educação alcançado pela pessoa, com valores como "Bachelors" (Bacharelado), "HS-grad" (Ensino médio completo), "Masters" (Mestrado), etc.
+
+-   **EducationNum (Número de Educação):** representação numérica do nível de educação. Pode ser uma codificação numérica para simplificar análises estatísticas ou de aprendizado de máquina.
+
+-   **MaritalStatus (Estado civil):** Indica o estado civil da pessoa, como "Never-married" (Nunca casado), "Married-civ-spouse" (Casado/a com cônjuge civil), "Divorced" (Divorciado/a), etc. Isso pode ser útil para entender a estrutura familiar e social dos indivíduos.
+
+-   **Occupation (Ocupação):** Esta coluna indica a ocupação ou profissão da pessoa, com valores como "Exec-managerial" (Executivo-gerencial), "Craft-repair" (Reparação de artesanato), "Sales" (Vendas), entre outros. Entender a distribuição ocupacional pode ser crucial para análises de mercado de trabalho e renda.
+
+-   **Relationship (Relacionamento)**: Indica o papel da pessoa na família, como "Not-in-family" (Não na família), "Husband" (Marido), "Own-child" (Filho/a próprio/a), etc
+
+-   **Race (Raça):** Esta coluna indica a raça da pessoa, com valores como "White" (Branco), "Black" (Negro), "Asian-Pac-Islander" (Asiático-ilhéu do Pacífico), entre outros. A raça é um fator sociodemográfico importante que pode influenciar vários aspectos da vida, como oportunidades educacionais, de emprego e de saúde.
+
+-   **Sex (Sexo):** Indica o sexo da pessoa, com valores "Male" (Masculino) e "Female" (Feminino). Este atributo é fundamental para análises de gênero e equidade.
+
+-   **CapitalGain (Ganho de Capital):** Esta coluna indica os ganhos de capital da pessoa, que podem resultar de investimentos financeiros, venda de propriedades, entre outros. Os ganhos de capital são uma medida importante de riqueza e podem ser cruciais para análises financeiras e de patrimônio.
+
+-   **Income (Renda)**: Esta é a variável de destino do conjunto de dados, indicando se a renda da pessoa excede \$50,000 por ano ou não. Isso é frequentemente usado como um alvo em modelos de aprendizado de máquina para prever a renda das pessoas com base em outros atributos do conjunto de dados.\*
+
+-   **CapitalLoss (Perda de Capital)**\_: Representa as perdas de capital da pessoa, que podem ocorrer, por exemplo, devido a investimentos malsucedidos ou à venda de ativos com prejuízo. Assim como os ganhos de capital, as perdas de capital são relevantes para avaliar a situação financeira das pessoas.
+
+-   **HoursPerWeek (Horas por Semana)**\_: Indica o número de horas que a pessoa trabalha por semana.
+
+-   **NativeCountry (País de Origem)**\_: Esta coluna indica o país de origem da pessoa.
+
+-   **Income (Renda)**\_: Esta é a variável de destino do conjunto de dados, indicando se a renda da pessoa excede \$50,000 por ano ou não. Isso é frequentemente usado como um alvo em modelos de aprendizado de máquina para prever a renda das pessoas com base em outros atributos do conjunto de dados.
+
+***Exploração de Dados***\
+\
+***Resumo estatístico do conjunto de dados***
+
+```{r}
+summary(dados_adult)
+```
+
+***Comentários sobre o resumo estatístico:*** - Podemos observar que algumas variáveis são categóricas, como classe de trabalho, educação, estado civil, ocupação, relacionamento, raça, sexo, país de origem e renda.
+
+***Estrutura do conjunto de dados***
+
+```{r}
+str(dados_adult)
+```
+
+***Comentários sobre a estrutura do conjunto de dados:***
+
+-   Existem 32.561 observações (linhas) e 15 variáveis (colunas) no conjunto de dados.
+
+-   A maioria das variáveis é do tipo character, indicando que são categóricas, enquanto algumas são int, indicando que são numéricas.
+
+***Contagem de valores únicos em algumas variáveis categóricas***
+
+```{r}
+table(dados_adult$Workclass)
+table(dados_adult$Education)
+table(dados_adult$MaritalStatus)
+table(dados_adult$Occupation)
+table(dados_adult$Race)
+table(dados_adult$Sex)
+table(dados_adult$NativeCountry)
+table(dados_adult$Income)
+```
+
+***Comentários sobre as variáveis categóricas:***
+
+-   Essas tabelas fornecem contagens de valores únicos para cada categoria em variáveis categóricas, como classe de trabalho, educação, estado civil, ocupação, raça, sexo, país de origem e renda.
+
+-   Podemos observar a distribuição dos dados nessas variáveis, o que nos dá uma ideia da diversidade e representatividade do conjunto de dados. Por exemplo, há uma predominância de pessoas que ganham menos de \$50K por ano (24.720) em comparação com aquelas que ganham mais de \$50K por ano (7.841).
+
+***Análise exploratória***
+
+```{r}
+# Boxplot da idade por renda
+ggplot(dados_adult, aes(x = Income, y = Age, fill = Income)) + geom_boxplot() + labs(x = "Renda", y = "Idade") +
+ ggtitle("Boxplot da Idade por Renda")
+```
+
+***Comentários sobre o boxplot “Idade por Renda”:***
+
+-   Podemos observar que a mediana da idade para aqueles com renda "\>50K" parece ser ligeiramente maior do que para aqueles com renda "\<=50K". Além disso, há uma variabilidade maior na faixa de idade para a categoria de renda "\>50K".
+
+```{r}
+# Histograma do número de horas trabalhadas por semana
+ggplot(dados_adult, aes(x = HoursPerWeek)) + geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  labs(x = "Horas por Semana", y = "Frequência") +
+  ggtitle("Histograma do Número de Horas Trabalhadas por Semana")
+```
+
+***Comentários sobre o histograma “Número de Horas Trabalhadas por Semana”:***
+
+-   A maioria das pessoas trabalham em torno de 35 a 45 horas por semana, conforme indicado pelo pico do histograma nessa faixa.
+
+-   A distribuição é aproximadamente simétrica, com uma pequena proporção de pessoas trabalhando menos de 20 horas e outra pequena proporção trabalhando mais de 60 horas por semana.
+
+```{r}
+# Gráfico de barras da educação por renda
+ggplot(dados_adult, aes(x = Education, fill = Income)) + geom_bar() + labs(x = "Educação", y = "Contagem", fill = "Renda") +
+  ggtitle("Distribuição da Educação por Renda") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+\_**Comentários sobre a Disribuição da Educação por Renda:**-
+
+-   Para ambas as categorias de renda, a maioria das pessoas tem educação no nível de "HS-grad" (Ensino médio completo) ou "Some-college" (Alguma faculdade).
+
+-   No entanto, para a categoria de renda "\>50K", há uma proporção ligeiramente maior de pessoas com níveis de educação mais altos, como "Bachelors" (Bacharelado), "Masters" (Mestrado) e "Doctorate" (Doutorado), em comparação com a categoria de renda "\<=50K"
+
+```{r}
+# Gráfico de barras do trabalho por renda
+ggplot(dados_adult, aes(x = Workclass, fill = Income)) + geom_bar() +
+  labs(x = "Classe de Trabalho", y = "Contagem", fill = "Renda") +
+  ggtitle("Distribuição da Classe de Trabalho por Renda") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+***Comentários sobre o gráfico de Distribuição da Classe de Trablho por Renda:***
+
+-   Podemos observar a distribuição da classe de trabalho para cada categoria de renda.
+-   A classe de trabalho mais comum para ambas as categorias de renda é "Private" (Privado), seguida por "Self-emp-not-inc" (Por conta própria - não incorporado).
+-   Há uma presença significativa de pessoas nas categorias de renda "\<=50K" e "\>50K" em várias classes de trabalho, o que indica uma diversidade de ocupações em ambos os grupos de renda.
+
+```{r}
+# Gráfico de barras do estado civil por renda
+ggplot(dados_adult, aes(x = MaritalStatus, fill = Income)) + geom_bar() + labs(x = "Estado Civil", y = "Contagem", fill = "Renda") +
+ ggtitle("Distribuição do Estado Civil por Renda") +
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+***Comentários sobre a “Distribuição do Estado Civil por Renda”:***
+
+-   Para a categoria de renda "\<=50K", o estado civil mais comum é "Married-civ-spouse" (Casado com cônjuge civil), seguido por "Never-married" (Nunca casado).
+-   Para a categoria de renda "\>50K", também "Married-civ-spouse" é o estado civil mais comum, mas há uma proporção relativamente maior de pessoas nesse estado civil em comparação com a categoria de renda "\<=50K".
+-   Além disso, há uma presença significativa de pessoas nas categorias de renda "\<=50K" e "\>50K" em vários estados civis, o que indica uma diversidade de situações familiares em ambos os grupos de renda.
+
+```{r}
+# Gráfico de barras da ocupação por renda
+ggplot(dados_adult, aes(x = Occupation, fill = Income)) +
+  geom_bar() +
+  labs(x = "Ocupação", y = "Contagem", fill = "Renda") +
+  ggtitle("Distribuição da Ocupação por Renda") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+***Comentários sobre a “Distribuição da Ocupação por Renda”:***
+
+-   Esse gráfico nos ajuda a visualizar como a distribuição das ocupações varia entre diferentes níveis de renda no conjunto de dados "Adult".
+-   As ocupações mais comuns para ambas as categorias de renda são "Prof-specialty" (Especialidade Profissional) e "Craft-repair" (Reparação de Artesanato).
+-   Há uma presença significativa de pessoas nas categorias de renda "\<=50K" e "\>50K" em várias ocupações, indicando uma diversidade de campos profissionais em ambos os grupos de renda.
+
+***Correlação entre variáveis numéricas***
+
+```{r}
+correlation_matrix <- cor(dados_adult[, c("Age", "FinalWeight", "EducationNum", "CapitalGain", "CapitalLoss", "HoursPerWeek")])
+
+correlation_matrix
+```
+
+***Comentários sobre a Matriz de Correlação:***
+
+-   Podemos observar que a idade (Age) tem uma correlação positiva fraca com o número de horas trabalhadas por semana (HoursPerWeek), enquanto a correlação com o peso final (FinalWeight) é negativa, mas muito fraca.
